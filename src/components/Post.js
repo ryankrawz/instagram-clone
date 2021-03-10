@@ -2,6 +2,7 @@ import React from 'react';
 
 import css from './Post.module.css';
 import publicUrl from 'utils/publicUrl';
+import Response from './Response';
 import timespan from 'utils/timespan';
 
 class Post extends React.Component {
@@ -11,9 +12,27 @@ class Post extends React.Component {
 
     render() {
         return (
-            <div>
-                Post 
-            </div>
+            <section className={css.post}>
+                <div className={css.postHeader}>
+                    <img className={css.profilePhoto} src={publicUrl(this.props.user.photo)} alt={this.props.user.id}/>
+                    <span className={css.username}>{this.props.user.id}</span>
+                </div>
+                <img className={css.postPhoto} src={publicUrl(this.props.post.photo)} alt={this.props.post.desc}/>
+                <div className={css.activityBar}>
+                    <div className={css.postButtons}>
+                        <img className={this.props.likes.self ? css.likedButton : css.unlikedButton} src={publicUrl('/assets/like.svg')}/>
+                        <img src={publicUrl('/assets/comment.svg')}/>
+                    </div>
+                    <span>{this.props.likes.count} likes</span>
+                </div>
+                <div className={css.postResponse}>
+                    <Response username={this.props.user.id} text={this.props.post.desc}/>
+                    {this.props.comments.map((c, i) => (
+                        <Response key={i} username={c.userId} text={c.text}/>
+                    ))}
+                </div>
+                <span className={css.postTimestamp}>{timespan(this.props.post.datetime)}</span>
+            </section>
         );
     }
 }

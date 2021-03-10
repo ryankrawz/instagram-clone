@@ -37,8 +37,8 @@ function Home() {
         <div>
             <Post
                 user={post.user}
-                likes = {post.likes}
-                post = {post.post}
+                likes={post.likes}
+                post={post.post}
                 comments={post.comments}
             />
         </div>

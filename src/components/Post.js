@@ -2,12 +2,23 @@ import React from 'react';
 
 import css from './Post.module.css';
 import publicUrl from 'utils/publicUrl';
-import Response from './Response';
 import timespan from 'utils/timespan';
+
+import Response from './Response';
 
 class Post extends React.Component {
     constructor(props) {
         super(props);
+        this.handleLike = this.handleLike.bind(this);
+        this.handleUnlike = this.handleUnlike.bind(this);
+    }
+
+    handleLike() {
+        this.props.onLike(this.props.post.id);
+    }
+
+    handleUnlike() {
+        this.props.onUnlike(this.props.post.id);
     }
 
     render() {
@@ -20,7 +31,10 @@ class Post extends React.Component {
                 <img className={css.postPhoto} src={publicUrl(this.props.post.photo)} alt={this.props.post.desc}/>
                 <div className={css.activityBar}>
                     <div>
-                        <img className={css.postItem} src={this.props.likes.self ? publicUrl('/assets/unlike.svg') : publicUrl('/assets/like.svg')}/>
+                        {this.props.likes.self ?
+                            <img className={css.postItem} src={publicUrl('/assets/unlike.svg')} alt={'Unlike'} onClick={this.handleUnlike}/> :
+                            <img className={css.postItem} src={publicUrl('/assets/like.svg')} alt={'Like'} onClick={this.handleLike}/>
+                        }
                         <img className={css.postItem} src={publicUrl('/assets/comment.svg')}/>
                     </div>
                     <span className={`${css.bold} ${css.postItem}`}>{this.props.likes.count} likes</span>

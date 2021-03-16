@@ -1,6 +1,7 @@
 import React from 'react';
 
 import css from './App.module.css';
+import { findFollowers, findFollowing, findPosts, findUser } from 'utils/find';
 import initialStore from 'utils/initialStore';
 
 import Activity from './Activity';
@@ -52,7 +53,12 @@ class App extends React.Component {
       case 'explore': return <Explore/>;
       case 'newpost': return <NewPost/>;
       case 'activity': return <Activity/>;
-      case 'profile': return <Profile store={this.state.store}/>;
+      case 'profile': return <Profile
+        user={findUser(this.state.store.currentUserId, this.state.store)}
+        followers={findFollowers(this.state.store.currentUserId, this.state.store)}
+        following={findFollowing(this.state.store.currentUserId, this.state.store)}
+        posts={findPosts(this.state.store.currentUserId, this.state.store)}
+      />;
       default: return <Home
         store={this.state.store}
         onLike={this.addLike} 

@@ -14,7 +14,7 @@ function Home(props) {
             {store.posts.sort((a, b) => new Date(b.datetime) - new Date(a.datetime)).map(post => (
                 <Post
                     key={post.id}
-                    user={findUser(post, store)}
+                    user={findUser(post.userId, store)}
                     likes={findLikes(post, store)}
                     post={post}
                     comments={findComments(post, store)}

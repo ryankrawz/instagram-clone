@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import css from './App.module.css';
 import { findFollowers, findFollowing, findPosts, findUser } from 'utils/find';
 import initialStore from 'utils/initialStore';
+import uniqueId from 'utils/uniqueId';
 
 import Activity from './Activity';
 import Explore from './Explore';
@@ -26,8 +27,23 @@ function App() {
 
     setStore({
       ...store,
-        comments:store.comments.concat(comment)
+      comments:store.comments.concat(comment)
     });
+  }
+
+  function addPost(photo, desc) {
+    const newPost = {
+      id: uniqueId('post'),
+      userId: store.currentUserId,
+      photo,
+      desc,
+      datetime: new Date().toISOString()
+    };
+    setStore({
+      ...store,
+      posts: store.posts.concat(newPost)
+    });
+		setPage('home');
   }
 
   function addLike(postId) {
@@ -43,6 +59,10 @@ function App() {
     });
   }
 
+  function cancelPost() {
+		setPage('home');
+	}	
+
   function removeLike(postId) {
     setStore({
       ...store,
@@ -53,7 +73,11 @@ function App() {
   function renderMain(page) {
     switch (page) {
       case 'explore': return <Explore/>;
-      case 'newpost': return <NewPost/>;
+      case 'newpost': return <NewPost
+        store={store}
+        addPost={addPost}
+        cancelPost={cancelPost}
+      />;
       case 'activity': return <Activity/>;
       case 'profile': return <Profile
         user={findUser(store.currentUserId, store)}

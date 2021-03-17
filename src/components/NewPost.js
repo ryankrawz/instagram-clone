@@ -43,7 +43,6 @@ function NewPost(props) {
 
     function handleSubmit(e) {
         try {
-            console.log(photo);
             props.addPost(photo, desc);
             setError('');
         } catch(err) {

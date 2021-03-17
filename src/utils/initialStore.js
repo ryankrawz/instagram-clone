@@ -1,4 +1,4 @@
-initialStore = { 
+const initialStore = { 
     currentUserId: "judy",
     users:[
         {

@@ -16,6 +16,20 @@ function App() {
   const [page, setPage] = useState('home');
   const [store, setStore] = useState(initialStore);
 
+  function addComment(postId, text) {
+    const comment = {
+      userId: store.currentUserId, 
+      postId,
+      text,
+      datetime: new Date().toISOString()
+    };
+
+    setStore({
+      ...store,
+        comments:store.comments.concat(comment)
+    });
+  }
+
   function addLike(postId) {
     const like = {
       userId: store.currentUserId, 
@@ -51,6 +65,7 @@ function App() {
         store={store}
         onLike={addLike} 
         onUnlike={removeLike}
+        onComment={addComment}
       />;
     }
   }

@@ -1,5 +1,5 @@
 /* sample data store*/
-export default { 
+export default initialStore = { 
     currentUserId: "judy",
     users:[
         {
@@ -129,4 +129,3 @@ export default {
         }
     ]
 }
-

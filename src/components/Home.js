@@ -1,8 +1,6 @@
 import React from 'react';
 
-import css from './Home.module.css';
 import { findComments, findLikes, findUser } from 'utils/find';
-import publicUrl from 'utils/publicUrl';
 
 import Post from './Post';
 

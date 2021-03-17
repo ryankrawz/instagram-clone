@@ -7,7 +7,7 @@ function sleep(milliseconds) {
 	}
 }
 
-export default (prefix) => { 
+export default function uniqueId(prefix) { 
 	const id = new Date().valueOf().toString(36);
 	sleep(1);
 	return prefix + id;

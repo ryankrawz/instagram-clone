@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import css from './App.module.css';
 import { findFollowers, findFollowing, findPosts, findUser } from 'utils/find';
@@ -12,78 +12,58 @@ import Navbar from './Navbar';
 import NewPost from './NewPost';
 import Profile from './Profile';
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      page: 'home',
-      store: initialStore
-    };
-    this.addLike = this.addLike.bind(this);
-		this.removeLike = this.removeLike.bind(this);
-    this.setPage = this.setPage.bind(this);
-  }
+function App() {
+  const [page, setPage] = useState('home');
+  const [store, setStore] = useState(initialStore);
 
-  addLike(postId) {
+  function addLike(postId) {
     const like = {
-        userId: this.state.store.currentUserId, 
-        postId,
-        datetime: new Date().toISOString()
+      userId: store.currentUserId, 
+      postId,
+      datetime: new Date().toISOString()
     };
     
-    this.setState(state => ({
-      store: {
-        ...state.store,
-        likes: state.store.likes.concat(like)
-      }
-    }));
+    setStore({
+      ...store,
+      likes: store.likes.concat(like)
+    });
   }
 
-  removeLike(postId) {
-    this.setState(state => ({
-      store: {
-        ...state.store,
-        likes: state.store.likes.filter(like => !(like.userId === state.store.currentUserId && like.postId === postId))
-      }
-    }));
+  function removeLike(postId) {
+    setStore({
+      ...store,
+      likes: store.likes.filter(like => !(like.userId === store.currentUserId && like.postId === postId))
+    });
   }
 
-  renderMain(page) {
+  function renderMain(page) {
     switch (page) {
       case 'explore': return <Explore/>;
       case 'newpost': return <NewPost/>;
       case 'activity': return <Activity/>;
       case 'profile': return <Profile
-        user={findUser(this.state.store.currentUserId, this.state.store)}
-        followers={findFollowers(this.state.store.currentUserId, this.state.store)}
-        following={findFollowing(this.state.store.currentUserId, this.state.store)}
-        posts={findPosts(this.state.store.currentUserId, this.state.store)}
+        user={findUser(store.currentUserId, store)}
+        followers={findFollowers(store.currentUserId, store)}
+        following={findFollowing(store.currentUserId, store)}
+        posts={findPosts(store.currentUserId, store)}
       />;
       default: return <Home
-        store={this.state.store}
-        onLike={this.addLike} 
-        onUnlike={this.removeLike}
+        store={store}
+        onLike={addLike} 
+        onUnlike={removeLike}
       />;
     }
   }
 
-  setPage(page) {
-    this.setState({
-      page: page
-    });
-  }
-
-  render() {
-    return (
-      <div className={css.container}>
-        <Header/>
-        <main className={css.content}>
-          {this.renderMain(this.state.page)}
-        </main>
-        <Navbar onNavChange={this.setPage}/>
-      </div>
-    );
-  }
+  return (
+    <div className={css.container}>
+      <Header/>
+      <main className={css.content}>
+        {renderMain(page)}
+      </main>
+      <Navbar onNavChange={setPage}/>
+    </div>
+  );
 }
 
 export default App;

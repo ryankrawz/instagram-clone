@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import css from './Post.module.css';
 import publicUrl from 'utils/publicUrl';
@@ -29,7 +30,9 @@ function Post(props) {
         <section className={css.post}>
             <div className={css.postHeader}>
                 <img className={css.profilePhoto} src={publicUrl(props.user.photo)} alt={props.user.id}/>
-                <span className={css.bold}>{props.user.id}</span>
+                <Link to={`/profile/${props.user.id}`}>
+                    <span className={css.bold}>{props.user.id}</span>
+                </Link>
             </div>
             <img className={css.postPhoto} src={publicUrl(props.post.photo)} alt={props.post.desc}/>
             <div>

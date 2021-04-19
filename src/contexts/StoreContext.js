@@ -1,6 +1,8 @@
 import firebase from 'firebase';
+import 'firebase/auth';
 import 'firebase/database';
 import React, { createContext, useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 
 import uniqueId from 'utils/uniqueId';
 
@@ -14,17 +16,19 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 const db = firebase.firestore();
 
 export const StoreContext = createContext();
 
 function StoreContextProvider(props) {
-    const [currentUserId, setCurrentUserId] = useState('judy');
+    const [currentUserId, setCurrentUserId] = useState(null);
     const [users, setUsers] = useState([]);
     const [posts, setPosts] = useState([]);
     const [likes, setLikes] = useState([]);
     const [followers, setFollowers] = useState([]);
     const [comments, setComments] = useState([]);
+    const history = useHistory();
 
     useEffect(() => {
         db.collection('users').get().then(snapshot => {
@@ -98,6 +102,20 @@ function StoreContextProvider(props) {
         db.collection('likes').add(like);
     }
 
+    function login(email, password) {
+        auth.signInWithEmailAndPassword(email, password).then((response) => {
+            db.collection('users')
+                .where('email','==', response.user.email)
+                .get()
+                .then(snapshot => {
+                    setCurrentUserId(snapshot.docs[0].data().id);
+                })
+            history.push('/');
+        }).catch(error => {
+            setCurrentUserId(null);
+        });
+    }
+
     function removeFollower(userId) {
         setFollowers(followers.filter(follower => !(follower.followerId === currentUserId && follower.userId === userId)));
         db.collection('followers')
@@ -116,9 +134,19 @@ function StoreContextProvider(props) {
             .then(snapshot => snapshot.forEach(doc => doc.ref.delete()));
     }
 
+    function signup(email, password, bio, id, name, photo) {
+        const newUser = {email, id, name, bio, photo};
+        auth.createUserWithEmailAndPassword(email, password).then(()=>{
+            db.collection('users').add(newUser);
+            setUsers(users.concat(newUser));
+            setCurrentUserId(id);
+            history.push('/');
+        })
+    }
+
 	return (
         <StoreContext.Provider value={{currentUserId, users, posts, likes, followers, comments,
-        addComment, addFollower, addPost, addLike, removeFollower, removeLike}}>
+        addComment, addFollower, addPost, addLike, login, removeFollower, removeLike, signup}}>
             {props.children}
         </StoreContext.Provider>
     )

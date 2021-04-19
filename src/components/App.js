@@ -8,9 +8,11 @@ import Activity from './Activity';
 import Explore from './Explore';
 import Header from './Header';
 import Home from './Home';
+import Login from './Login';
 import Navbar from './Navbar';
 import NewPost from './NewPost';
 import Profile from './Profile';
+import Signup from './Signup';
 
 function App() {
     return (
@@ -20,6 +22,12 @@ function App() {
                     <Header/>
                     <main className={css.content}>
                         <Switch>
+                            <Route path="/login">
+                                <Login/>
+                            </Route>
+                            <Route path="/signup">
+                                <Signup/>
+                            </Route>
                             <Route path="/explore">
                                 <Explore/>
                             </Route>

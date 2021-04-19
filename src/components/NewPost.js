@@ -1,12 +1,12 @@
 import React, { useContext, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { Redirect, useHistory } from 'react-router-dom';
 
 import css from './NewPost.module.css';
 import FileLoader from './FileLoader';
 import { StoreContext } from 'contexts/StoreContext';
 
 function NewPost() {
-    const {addPost} = useContext(StoreContext);
+    const {addPost, currentUserId} = useContext(StoreContext);
     const [dragging, setDragging] = useState(false);
     const [desc, setDesc] = useState('');
     const [photo, setPhoto] = useState(null);
@@ -57,32 +57,34 @@ function NewPost() {
     }
 
     return (
-        <div>
-            <div className={css.photo}>
-                {!photo ?
-                    <div className={css.message}>Drop your image</div> :
-                    <img src={photo} alt="New Post"/>
-                }
-                <FileLoader
-                onDragEnter={handleFileDragEnter}
-                onDragLeave={handleFileDragLeave}
-                onDrop={handleFileDrop}
-                >
-                    <div className={[css.dropArea, dragging ? css.dragging : null].join(' ')}></div>
-                </FileLoader>
-            </div>
+        !currentUserId ? <Redirect to="login"/> : (
+            <div>
+                <div className={css.photo}>
+                    {!photo ?
+                        <div className={css.message}>Drop your image</div> :
+                        <img src={photo} alt="New Post"/>
+                    }
+                    <FileLoader
+                    onDragEnter={handleFileDragEnter}
+                    onDragLeave={handleFileDragLeave}
+                    onDrop={handleFileDrop}
+                    >
+                        <div className={[css.dropArea, dragging ? css.dragging : null].join(' ')}></div>
+                    </FileLoader>
+                </div>
 
-            <div className={css.desc} >
-                <textarea value={desc} onChange={e => handleDescChange(e)}/>
+                <div className={css.desc} >
+                    <textarea value={desc} onChange={e => handleDescChange(e)}/>
+                </div>
+                <div className={css.error}>
+                    {error}
+                </div>
+                <div className={css.actions}>
+                    <button onClick={e => history.push('/')}>Cancel</button>
+                    <button onClick={handleSubmit}>Share</button>      
+                </div>
             </div>
-            <div className={css.error}>
-                {error}
-            </div>
-            <div className={css.actions}>
-                <button onClick={e => history.push('/')}>Cancel</button>
-                <button onClick={handleSubmit}>Share</button>      
-            </div>
-        </div>
+        )
     );
 }
 

@@ -1,42 +1,74 @@
+import firebase from 'firebase';
+import 'firebase/database';
 import React, { createContext, useEffect, useState } from 'react';
 
-import initialStore from 'utils/initialStore';
 import uniqueId from 'utils/uniqueId';
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDxA78Ih4iISd5wJgLBr7D0fV-p5FoiDDg",
+    authDomain: "krawczry-csci2254.firebaseapp.com",
+    projectId: "krawczry-csci2254",
+    storageBucket: "krawczry-csci2254.appspot.com",
+    messagingSenderId: "292846939114",
+    appId: "1:292846939114:web:08162f5d2e394446e62093"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 export const StoreContext = createContext();
 
 function StoreContextProvider(props) {
-    const [store, setStore] = useState(() => {
-        return JSON.parse(window.localStorage.getItem('store')) || initialStore;
-    });
+    const [currentUserId, setCurrentUserId] = useState('judy');
+    const [users, setUsers] = useState([]);
+    const [posts, setPosts] = useState([]);
+    const [likes, setLikes] = useState([]);
+    const [followers, setFollowers] = useState([]);
+    const [comments, setComments] = useState([]);
 
     useEffect(() => {
-        window.localStorage.setItem('store', JSON.stringify(store));
-    }, [store]);
+        db.collection('users').get().then(snapshot => {
+            const dbUsers = snapshot.docs.map(d => d.data());
+            setUsers(dbUsers);
+        });
+        db.collection('posts').get().then(snapshot => {
+            const dbPosts = snapshot.docs.map(d => d.data());
+            setPosts(dbPosts);
+        });
+        db.collection('followers').get().then(snapshot => {
+            const dbFollowers = snapshot.docs.map(d => d.data());
+            setFollowers(dbFollowers);
+        });
+        db.collection('comments').get().then(snapshot => {
+            const dbComments = snapshot.docs.map(d => d.data());
+            setComments(dbComments);
+        });
+        db.collection('likes').get().then(snapshot => {
+            const dbLikes = snapshot.docs.map(d => d.data());
+            setLikes(dbLikes);
+        });
+    }, []);
 
     function addComment(postId, text) {
         const comment = {
-            userId: store.currentUserId, 
+            userId: currentUserId, 
             postId,
             text,
             datetime: new Date().toISOString()
         };
 
-        setStore({
-            ...store,
-            comments: store.comments.concat(comment)
-        });
+        setComments(comments.concat(comment));
+        db.collection('comments').add(comment);
     }
 
     function addFollower(userId) {
         const newFollower = {
             userId,
-            followerId: store.currentUserId
+            followerId: currentUserId
         }
-        setStore({
-            ...store,
-            followers: store.followers.concat(newFollower)
-        });
+        
+        setFollowers(followers.concat(newFollower));
+        db.collection('followers').add(newFollower);
     }
 
     function addPost(photo, desc) {
@@ -45,46 +77,48 @@ function StoreContextProvider(props) {
         }
         const newPost = {
             id: uniqueId('post'),
-            userId: store.currentUserId,
+            userId: currentUserId,
             photo,
             desc,
             datetime: new Date().toISOString()
         };
-        setStore({
-            ...store,
-            posts: store.posts.concat(newPost)
-        });
+        
+        setPosts(posts.concat(newPost));
+        db.collection('posts').add(newPost);
     }
 
     function addLike(postId) {
         const like = {
-            userId: store.currentUserId, 
+            userId: currentUserId, 
             postId,
             datetime: new Date().toISOString()
         };
 
-        setStore({
-            ...store,
-            likes: store.likes.concat(like)
-        });
+        setLikes(likes.concat(like));
+        db.collection('likes').add(like);
     }
 
     function removeFollower(userId) {
-        setStore({
-            ...store,
-            followers: store.followers.filter(follower => !(follower.followerId === store.currentUserId && follower.userId === userId))
-        });
+        setFollowers(followers.filter(follower => !(follower.followerId === currentUserId && follower.userId === userId)));
+        db.collection('followers')
+            .where('userId', '==', userId)
+            .where('followerId', '==', currentUserId)
+            .get()
+            .then(snapshot => snapshot.forEach(doc => doc.ref.delete()));
     }
 
     function removeLike(postId) {
-        setStore({
-            ...store,
-            likes: store.likes.filter(like => !(like.userId === store.currentUserId && like.postId === postId))
-        });
+        setLikes(likes.filter(like => !(like.userId === currentUserId && like.postId === postId)));
+        db.collection('likes')
+            .where('userId', '==', currentUserId)
+            .where('postId', '==', postId)
+            .get()
+            .then(snapshot => snapshot.forEach(doc => doc.ref.delete()));
     }
 
 	return (
-        <StoreContext.Provider value={{...store, addComment, addFollower, addPost, addLike, removeFollower, removeLike}}>
+        <StoreContext.Provider value={{currentUserId, users, posts, likes, followers, comments,
+        addComment, addFollower, addPost, addLike, removeFollower, removeLike}}>
             {props.children}
         </StoreContext.Provider>
     )
